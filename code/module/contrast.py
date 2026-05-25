@@ -8,7 +8,7 @@ import torch.nn.functional as F
 # - Projection head (line 18-22): Eq. 18
 # - Cosine similarity + temperature (line 29-35): exp(sim/τ) in Eq. 20-21
 # - Positive sample matrix 'pos' (external input): Eq. 19 with threshold θ_pos
-# - Loss computation (line 40-47): Eq. 20 (ns->mh) and Eq. 21 (mh->ns)
+# - Loss computation (line 43-47): Eq. 20 (ns->mh) and Eq. 21 (mh->ns)
 # - Weighted combination (line 48): Eq. 22
 # ============================================================
 
