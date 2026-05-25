@@ -8,7 +8,7 @@ import torch.nn.functional as F
 # - Projection head (line 18-22): Eq. 18
 # - Cosine similarity + temperature (line 29-35): exp(sim/τ) in Eq. 20-21
 # - Positive sample matrix 'pos' (external input): Eq. 19 with threshold θ_pos
-# - Loss computation (line 40-47): Eq. 20 (mp->sc) and Eq. 21 (sc->mp)
+# - Loss computation (line 40-47): Eq. 20 (ns->mh) and Eq. 21 (mh->ns)
 # - Weighted combination (line 48): Eq. 22
 # ============================================================
 
@@ -34,17 +34,17 @@ class Contrast(nn.Module):
         sim_matrix = torch.exp(dot_numerator / dot_denominator / self.tau)
         return sim_matrix
 
-    def forward(self, z_mp, z_sc, pos):
-        z_proj_mp = self.proj(z_mp)
-        z_proj_sc = self.proj(z_sc)
-        matrix_mp2sc = self.sim(z_proj_mp, z_proj_sc)
-        matrix_sc2mp = matrix_mp2sc.t()
+    def forward(self, z_mh, z_ns, pos):
+        z_proj_mh = self.proj(z_mh)
+        z_proj_ns = self.proj(z_ns)
+        matrix_mh2ns = self.sim(z_proj_mh, z_proj_ns)
+        matrix_ns2mh = matrix_mh2ns.t()
 
-        matrix_mp2sc = matrix_mp2sc/(torch.sum(matrix_mp2sc, dim=1).view(-1, 1) + 1e-8)
-        lori_mp = -torch.log(matrix_mp2sc.mul(pos.to_dense()).sum(dim=-1)).mean()
+        matrix_mh2ns = matrix_mh2ns/(torch.sum(matrix_mh2ns, dim=1).view(-1, 1) + 1e-8)
+        lori_mh = -torch.log(matrix_mh2ns.mul(pos.to_dense()).sum(dim=-1)).mean()
 
-        matrix_sc2mp = matrix_sc2mp / (torch.sum(matrix_sc2mp, dim=1).view(-1, 1) + 1e-8)
-        lori_sc = -torch.log(matrix_sc2mp.mul(pos.to_dense()).sum(dim=-1)).mean()
-        return self.lam * lori_mp + (1 - self.lam) * lori_sc
+        matrix_ns2mh = matrix_ns2mh / (torch.sum(matrix_ns2mh, dim=1).view(-1, 1) + 1e-8)
+        lori_ns = -torch.log(matrix_ns2mh.mul(pos.to_dense()).sum(dim=-1)).mean()
+        return self.lam * lori_mh + (1 - self.lam) * lori_ns
 
 
