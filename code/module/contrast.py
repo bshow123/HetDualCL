@@ -2,6 +2,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+# ============================================================
+# Cross-View Contrastive Loss (Section 4.4, Eqs. 18-22)
+# ============================================================
+# - Projection head (line 18-22): Eq. 18
+# - Cosine similarity + temperature (line 29-35): exp(sim/τ) in Eq. 20-21
+# - Positive sample matrix 'pos' (external input): Eq. 19 with threshold θ_pos
+# - Loss computation (line 40-47): Eq. 20 (mp->sc) and Eq. 21 (sc->mp)
+# - Weighted combination (line 48): Eq. 22
+# ============================================================
+
 class Contrast(nn.Module):
     def __init__(self, hidden_dim, tau, lam):
         super(Contrast, self).__init__()
