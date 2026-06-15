@@ -12,7 +12,7 @@ from module import HetDualCL
 import time
 import random
 from self_tools.data_tools import load_data, get_batch_pos
-from self_tools.evaluate import evaluate_for_test, evaluate_for_train
+from self_tools.evaluate import evaluate_for_train
 from self_tools.params import set_params
 import itertools
 
@@ -60,11 +60,10 @@ class EfficiencyStats:
             'gpu_mean': np.mean(self.gpu_memories),
             'gpu_std': np.std(self.gpu_memories),
             'gpu_max': np.max(self.gpu_memories),
-            'silhouette_score':self.silhouette_scores
+            'silhouette_score': self.silhouette_scores
         }
 
 
-# 初始化全局统计对象
 efficiency_stats = EfficiencyStats()
 
 def make(config, dgl_graph, feats_dim_list, P, h_dict, category, all_node_idx,
@@ -347,28 +346,7 @@ def model_train(args):
     print("Avg Peak GPU Memory: {:.2f} ± {:.2f} MB".format(eff_summary['gpu_mean'], eff_summary['gpu_std']))
     print("Peal GPU Memory: {:.2f} MB".format(eff_summary['gpu_max']))
 
-    os.makedirs(f'../result/final_result/', exist_ok=True)
-    filename = f'../result/final_result/GTC_final_{args.dataset}.txt'
 
-    run_info = f"\n=== Result ({time.strftime('%Y-%m-%d %H:%M:%S')}) ==="
-
-    divider = "+-----+----------+----------+---------+---------+---------+"
-    content = f"""{run_info}
-{divider}
-[Statistics]
-Macro-F1_20: {np.mean(ma_dic_list['ma_20']):.4f} ± {np.std(ma_dic_list['ma_20']):.4f}
-Macro-F1_40: {np.mean(ma_dic_list['ma_40']):.4f} ± {np.std(ma_dic_list['ma_40']):.4f}
-Macro-F1_60: {np.mean(ma_dic_list['ma_60']):.4f} ± {np.std(ma_dic_list['ma_60']):.4f}
-Micro-F1_20: {np.mean(mi_dic_list['mi_20']):.4f} ± {np.std(mi_dic_list['mi_20']):.4f}
-Micro-F1_40: {np.mean(mi_dic_list['mi_40']):.4f} ± {np.std(mi_dic_list['mi_40']):.4f}
-Micro-F1_60: {np.mean(mi_dic_list['mi_60']):.4f} ± {np.std(mi_dic_list['mi_60']):.4f}
-AUC_20:      {np.mean(auc_dic_list['auc_20']):.4f} ± {np.std(auc_dic_list['auc_20']):.4f}
-AUC_40:      {np.mean(auc_dic_list['auc_40']):.4f} ± {np.std(auc_dic_list['auc_40']):.4f}
-AUC_60:      {np.mean(auc_dic_list['auc_60']):.4f} ± {np.std(auc_dic_list['auc_60']):.4f}
-{divider}
-"""
-    with open(filename, 'a') as f:
-        f.write(content)
 
 
 import matplotlib.pyplot as plt
@@ -437,12 +415,5 @@ def plot_stability_curves(losses_list, val_ma_list, dataset_name):
     print(f'Stability plot saved as stability_{dataset_name}.pdf')
 
 if __name__ == '__main__':
-    # if args.load_from_pretrained:  # test the pretrained model
-    #     test_pre_trained_model(args)
-    # else:  # train new model
     model_train(args)
-
-
-
-
 
